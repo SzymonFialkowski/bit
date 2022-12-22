@@ -506,6 +506,7 @@ declare module 'ccxt' {
     export class delta extends Exchange {}
     export class deribit extends Exchange {}
     export class digifinex extends Exchange {}
+    export class egera extends Exchange {}
     export class exmo extends Exchange {}
     export class flowbtc extends ndax {}
     export class fmfwio extends hitbtc {}
@@ -622,6 +623,7 @@ declare module 'ccxt' {
         | 'delta'
         | 'deribit'
         | 'digifinex'
+        | 'egera'
         | 'exmo'
         | 'flowbtc'
         | 'fmfwio'

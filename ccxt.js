@@ -99,6 +99,7 @@ const exchanges = {
     'delta':                   require ('./js/delta.js'),
     'deribit':                 require ('./js/deribit.js'),
     'digifinex':               require ('./js/digifinex.js'),
+    'egera':                   require ('./js/egera.js'),
     'exmo':                    require ('./js/exmo.js'),
     'flowbtc':                 require ('./js/flowbtc.js'),
     'fmfwio':                  require ('./js/fmfwio.js'),

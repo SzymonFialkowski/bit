@@ -128,6 +128,7 @@ from ccxt.currencycom import currencycom                              # noqa: F4
 from ccxt.delta import delta                                          # noqa: F401
 from ccxt.deribit import deribit                                      # noqa: F401
 from ccxt.digifinex import digifinex                                  # noqa: F401
+from ccxt.egera import egera                                          # noqa: F401
 from ccxt.exmo import exmo                                            # noqa: F401
 from ccxt.flowbtc import flowbtc                                      # noqa: F401
 from ccxt.fmfwio import fmfwio                                        # noqa: F401
@@ -241,6 +242,7 @@ exchanges = [
     'delta',
     'deribit',
     'digifinex',
+    'egera',
     'exmo',
     'flowbtc',
     'fmfwio',

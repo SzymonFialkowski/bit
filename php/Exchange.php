@@ -117,6 +117,7 @@ class Exchange {
         'delta',
         'deribit',
         'digifinex',
+        'egera',
         'exmo',
         'flowbtc',
         'fmfwio',
