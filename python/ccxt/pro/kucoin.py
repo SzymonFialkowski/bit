@@ -808,7 +808,8 @@ class kucoin(Exchange, ccxt.async_support.kucoin):
         if relationEvent is not None:
             relationEventParts = relationEvent.split('.')
             requestAccountType = self.safe_string(relationEventParts, 0)
-        selectedType = self.safe_string_2(self.options, 'watchBalance', 'defaultType', 'trade')  # trade, main, margin or other
+        # @ME
+        # selectedType = self.safe_string_2(self.options, 'watchBalance', 'defaultType', 'trade')  # trade, main, margin or other
         accountsByType = self.safe_value(self.options, 'accountsByType')
         uniformType = self.safe_string(accountsByType, requestAccountType, 'trade')
         if not (uniformType in self.balance):
@@ -820,8 +821,11 @@ class kucoin(Exchange, ccxt.async_support.kucoin):
         account['total'] = self.safe_string(data, 'total')
         self.balance[uniformType][code] = account
         self.balance[uniformType] = self.safe_balance(self.balance[uniformType])
-        if uniformType == selectedType:
-            client.resolve(self.balance[uniformType], messageHash)
+        client.resolve(message, messageHash)
+        # @ME
+        # if uniformType == selectedType:
+        #     client.resolve(self.balance[uniformType], messageHash)
+        # }
 
     def handle_balance_subscription(self, client, message, subscription):
         self.spawn(self.fetch_balance_snapshot, client, message)
@@ -884,7 +888,7 @@ class kucoin(Exchange, ccxt.async_support.kucoin):
                 account['total'] = self.safe_string(balance, 'total')
                 self.balance[selectedType][code] = account
                 self.balance[selectedType] = self.safe_balance(self.balance[selectedType])
-            client.resolve(self.balance[selectedType], messageHash)
+            client.resolve(message, messageHash)
 
     def handle_subject(self, client, message):
         #

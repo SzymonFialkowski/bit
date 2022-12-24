@@ -232,7 +232,7 @@ module.exports = class Exchange {
         //
         //     if (isNode) {
         //         this.nodeVersion = process.version.match (/\d+\.\d+\.\d+/)[0]
-        //         this.userAgent = {
+        //§         this.userAgent = {
         //             'User-Agent': 'ccxt/' + Exchange.ccxtVersion +
         //                 ' (+https://github.com/ccxt/ccxt)' +
         //                 ' Node.js/' + this.nodeVersion + ' (JavaScript)'

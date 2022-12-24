@@ -895,7 +895,8 @@ class kucoin extends \ccxt\async\kucoin {
             $relationEventParts = explode('.', $relationEvent);
             $requestAccountType = $this->safe_string($relationEventParts, 0);
         }
-        $selectedType = $this->safe_string_2($this->options, 'watchBalance', 'defaultType', 'trade'); // trade, main, margin or other
+        // @ME
+        // $selectedType = $this->safe_string_2($this->options, 'watchBalance', 'defaultType', 'trade'); // trade, main, margin or other
         $accountsByType = $this->safe_value($this->options, 'accountsByType');
         $uniformType = $this->safe_string($accountsByType, $requestAccountType, 'trade');
         if (!(is_array($this->balance) && array_key_exists($uniformType, $this->balance))) {
@@ -908,9 +909,11 @@ class kucoin extends \ccxt\async\kucoin {
         $account['total'] = $this->safe_string($data, 'total');
         $this->balance[$uniformType][$code] = $account;
         $this->balance[$uniformType] = $this->safe_balance($this->balance[$uniformType]);
-        if ($uniformType === $selectedType) {
-            $client->resolve ($this->balance[$uniformType], $messageHash);
-        }
+        $client->resolve ($message, $messageHash);
+        // @ME
+        // if ($uniformType === $selectedType) {
+        //     $client->resolve ($this->balance[$uniformType], $messageHash);
+        // }
     }
 
     public function handle_balance_subscription($client, $message, $subscription) {
@@ -978,7 +981,7 @@ class kucoin extends \ccxt\async\kucoin {
                     $this->balance[$selectedType][$code] = $account;
                     $this->balance[$selectedType] = $this->safe_balance($this->balance[$selectedType]);
                 }
-                $client->resolve ($this->balance[$selectedType], $messageHash);
+                $client->resolve ($message, $messageHash);
             }
         }) ();
     }

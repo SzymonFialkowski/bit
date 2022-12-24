@@ -883,7 +883,8 @@ module.exports = class kucoin extends kucoinRest {
             const relationEventParts = relationEvent.split ('.');
             requestAccountType = this.safeString (relationEventParts, 0);
         }
-        const selectedType = this.safeString2 (this.options, 'watchBalance', 'defaultType', 'trade'); // trade, main, margin or other
+        // @ME
+        // const selectedType = this.safeString2 (this.options, 'watchBalance', 'defaultType', 'trade'); // trade, main, margin or other
         const accountsByType = this.safeValue (this.options, 'accountsByType');
         const uniformType = this.safeString (accountsByType, requestAccountType, 'trade');
         if (!(uniformType in this.balance)) {
@@ -896,9 +897,12 @@ module.exports = class kucoin extends kucoinRest {
         account['total'] = this.safeString (data, 'total');
         this.balance[uniformType][code] = account;
         this.balance[uniformType] = this.safeBalance (this.balance[uniformType]);
-        if (uniformType === selectedType) {
-            client.resolve (this.balance[uniformType], messageHash);
-        }
+        // @ME
+        client.resolve (message, messageHash);
+        // @ME
+        // if (uniformType === selectedType) {
+        //     client.resolve (this.balance[uniformType], messageHash);
+        // }
     }
 
     handleBalanceSubscription (client, message, subscription) {
@@ -965,7 +969,9 @@ module.exports = class kucoin extends kucoinRest {
                 this.balance[selectedType][code] = account;
                 this.balance[selectedType] = this.safeBalance (this.balance[selectedType]);
             }
-            client.resolve (this.balance[selectedType], messageHash);
+
+            // @ME
+            client.resolve (message, messageHash);
         }
     }
 
