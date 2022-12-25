@@ -1,9 +1,10 @@
 {
-  "name": "sfffff-bit",
+  "name": "@ymon737/ccxt",
   "version": "2.4.47",
   "description": "A JavaScript / Python / PHP cryptocurrency trading library with support for 130+ exchanges",
   "main": "./ccxt.js",
   "unpkg": "dist/ccxt.browser.js",
+  "private": false,
   "engines": {
     "node": ">=10.4.0"
   },
