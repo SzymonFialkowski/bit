@@ -1,5 +1,5 @@
 {
-  "name": "ccxt",
+  "name": "sf/bit",
   "version": "2.4.47",
   "description": "A JavaScript / Python / PHP cryptocurrency trading library with support for 130+ exchanges",
   "main": "./ccxt.js",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ccxt/ccxt.git"
+    "url": "https://github.com/SzymonFialkowski/bit.git"
   },
   "readme": "README.md",
   "scripts": {
