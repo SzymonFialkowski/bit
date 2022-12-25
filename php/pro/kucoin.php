@@ -909,6 +909,7 @@ class kucoin extends \ccxt\async\kucoin {
         $account['total'] = $this->safe_string($data, 'total');
         $this->balance[$uniformType][$code] = $account;
         $this->balance[$uniformType] = $this->safe_balance($this->balance[$uniformType]);
+        // @ME
         $client->resolve ($message, $messageHash);
         // @ME
         // if ($uniformType === $selectedType) {
@@ -981,6 +982,7 @@ class kucoin extends \ccxt\async\kucoin {
                     $this->balance[$selectedType][$code] = $account;
                     $this->balance[$selectedType] = $this->safe_balance($this->balance[$selectedType]);
                 }
+                // @ME
                 $client->resolve ($message, $messageHash);
             }
         }) ();

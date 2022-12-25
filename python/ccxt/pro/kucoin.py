@@ -821,6 +821,7 @@ class kucoin(Exchange, ccxt.async_support.kucoin):
         account['total'] = self.safe_string(data, 'total')
         self.balance[uniformType][code] = account
         self.balance[uniformType] = self.safe_balance(self.balance[uniformType])
+        # @ME
         client.resolve(message, messageHash)
         # @ME
         # if uniformType == selectedType:
@@ -888,6 +889,7 @@ class kucoin(Exchange, ccxt.async_support.kucoin):
                 account['total'] = self.safe_string(balance, 'total')
                 self.balance[selectedType][code] = account
                 self.balance[selectedType] = self.safe_balance(self.balance[selectedType])
+            # @ME
             client.resolve(message, messageHash)
 
     def handle_subject(self, client, message):

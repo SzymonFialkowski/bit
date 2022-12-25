@@ -969,7 +969,6 @@ module.exports = class kucoin extends kucoinRest {
                 this.balance[selectedType][code] = account;
                 this.balance[selectedType] = this.safeBalance (this.balance[selectedType]);
             }
-
             // @ME
             client.resolve (message, messageHash);
         }
