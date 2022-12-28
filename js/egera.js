@@ -16,14 +16,14 @@ module.exports = class egera extends Exchange {
             'countries': [ 'PL' ],
             'rateLimit': 2000,
             'certified': false,
-            'pro': false,
+            'pro': true,
             'urls': {
                 'api': {
                     'public': 'https://api.egera.com/',
                     'private': 'https://api.egera.com/',
                 },
-                'www': 'https://egera.com',
-                'doc': 'https://docs.egera.com',
+                'www': 'https://bitclude.com',
+                'doc': 'https://docs.bitclude.com',
             },
             'requiredCredentials': {
                 'apiKey': true,
@@ -51,12 +51,14 @@ module.exports = class egera extends Exchange {
                 'fetchOrder': false,
                 'fetchOrderBook': true,
                 'fetchOrders': false,
-                'fetchTicker': 'emulated',
+                'fetchTicker': true,
                 'fetchTickers': true,
                 'fetchTrades': true,
                 'fetchTradingFees': false,
                 'fetchWithdrawals': false,
+                'watchBalance': true,
                 'withdraw': false,
+                'ws': true,
             },
             'api': {
                 'public': {
@@ -177,20 +179,17 @@ module.exports = class egera extends Exchange {
 
     async fetchTickers (symbols = undefined, params = {}) {
         await this.loadMarkets ();
-        symbols = (symbols === undefined) ? this.symbols : symbols;
         const tickers = await this.publicGetStatsTickerJson (params);
-        const marketIds = Object.keys (this.marketsById);
-        const result = {};
-        for (let i = 0; i < marketIds.length; i++) {
-            const marketId = marketIds[i];
-            const market = this.marketsById[marketId];
-            const symbol = market['symbol'];
-            const ticker = this.safeValue (tickers, marketId);
-            if (this.inArray (symbol, symbols)) {
-                result[symbol] = this.parseTicker (ticker, market);
-            }
-        }
-        return result;
+        const result = symbols.map ((symbol) => {
+            const market = this.market (symbol);
+            const marketId = this.safeValue (market, 'id');
+            const ticker = tickers[marketId];
+            return this.parseTicker (ticker, market);
+        });
+        return result.reduce ((prev, cur) => {
+            prev[cur.symbol] = cur;
+            return prev;
+        }, {});
     }
 
     async fetchTicker (symbol, params = {}) {
@@ -202,6 +201,7 @@ module.exports = class egera extends Exchange {
         const timestamp = this.milliseconds ();
         const symbol = market['symbol'];
         return {
+            // 'subject': this.safeString (ticker, 'action'),
             'symbol': symbol,
             'timestamp': timestamp,
             'datetime': this.iso8601 (timestamp),
@@ -216,10 +216,10 @@ module.exports = class egera extends Exchange {
             'close': this.safeFloat (ticker, 'last'),
             'last': this.safeFloat (ticker, 'last'),
             'previousClose': undefined,
-            'change': undefined,
+            'change': this.safeFloat (ticker, 'change'),
             'percentage': undefined,
             'average': undefined,
-            'baseVolume': undefined,
+            'baseVolume': this.safeFloat (ticker, 'volume'),
             'quoteVolume': undefined,
             'info': ticker,
         };
@@ -364,9 +364,11 @@ module.exports = class egera extends Exchange {
             const account = this.account ();
             account['free'] = this.safeFloat (balance, 'active');
             account['used'] = this.safeFloat (balance, 'inactive');
+            account['total'] = account['free'] + account['used'];
             result[currencyCode] = account;
         }
-        return this.parseBalance (result);
+        const balance = this.safeBalance (result);
+        return balance;
     }
 
     async createOrder (symbol, type, side, amount, price = undefined, params = {}) {
@@ -528,8 +530,8 @@ module.exports = class egera extends Exchange {
 
     async fetchDepositAddress (code, params = {}) {
         await this.loadMarkets ();
-        let currencyId = this.currencyId (code);
-        currencyId = currencyId.toUpperCase ();
+        const currency = this.currency (code);
+        const currencyId = currency['id'].toUpperCase ();
         const request = {
             'method': 'account',
             'action': 'info',
@@ -540,9 +542,11 @@ module.exports = class egera extends Exchange {
         const address = this.safeString (deposit, 'deposit');
         this.checkAddress (address);
         return {
-            'currency': code,
-            'address': address,
             'info': response,
+            'currency': currencyId,
+            'address': address,
+            'tag': null,
+            'network': null,
         };
     }
 

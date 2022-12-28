@@ -23,14 +23,14 @@ class egera(Exchange):
             'countries': ['PL'],
             'rateLimit': 2000,
             'certified': False,
-            'pro': False,
+            'pro': True,
             'urls': {
                 'api': {
                     'public': 'https://api.egera.com/',
                     'private': 'https://api.egera.com/',
                 },
-                'www': 'https://egera.com',
-                'doc': 'https://docs.egera.com',
+                'www': 'https://bitclude.com',
+                'doc': 'https://docs.bitclude.com',
             },
             'requiredCredentials': {
                 'apiKey': True,
@@ -58,12 +58,14 @@ class egera(Exchange):
                 'fetchOrder': False,
                 'fetchOrderBook': True,
                 'fetchOrders': False,
-                'fetchTicker': 'emulated',
+                'fetchTicker': True,
                 'fetchTickers': True,
                 'fetchTrades': True,
                 'fetchTradingFees': False,
                 'fetchWithdrawals': False,
+                'watchBalance': True,
                 'withdraw': False,
+                'ws': True,
             },
             'api': {
                 'public': {
@@ -177,18 +179,17 @@ class egera(Exchange):
 
     async def fetch_tickers(self, symbols=None, params={}):
         await self.load_markets()
-        symbols = self.symbols if (symbols is None) else symbols
         tickers = await self.publicGetStatsTickerJson(params)
-        marketIds = list(self.marketsById.keys())
-        result = {}
-        for i in range(0, len(marketIds)):
-            marketId = marketIds[i]
-            market = self.marketsById[marketId]
-            symbol = market['symbol']
-            ticker = self.safe_value(tickers, marketId)
-            if self.in_array(symbol, symbols):
-                result[symbol] = self.parse_ticker(ticker, market)
-        return result
+        result = symbols.map((symbol) => {
+            market = self.market(symbol)
+            marketId = self.safe_value(market, 'id')
+            ticker = tickers[marketId]
+            return self.parse_ticker(ticker, market)
+        })
+        return result.reduce((prev, cur) => {
+            prev[cur.symbol] = cur
+            return prev
+        }, {})
 
     async def fetch_ticker(self, symbol, params={}):
         ticker = await self.fetch_tickers([symbol])
@@ -198,6 +199,7 @@ class egera(Exchange):
         timestamp = self.milliseconds()
         symbol = market['symbol']
         return {
+            # 'subject': self.safe_string(ticker, 'action'),
             'symbol': symbol,
             'timestamp': timestamp,
             'datetime': self.iso8601(timestamp),
@@ -212,10 +214,10 @@ class egera(Exchange):
             'close': self.safe_float(ticker, 'last'),
             'last': self.safe_float(ticker, 'last'),
             'previousClose': None,
-            'change': None,
+            'change': self.safe_float(ticker, 'change'),
             'percentage': None,
             'average': None,
-            'baseVolume': None,
+            'baseVolume': self.safe_float(ticker, 'volume'),
             'quoteVolume': None,
             'info': ticker,
         }
@@ -348,8 +350,10 @@ class egera(Exchange):
             account = self.account()
             account['free'] = self.safe_float(balance, 'active')
             account['used'] = self.safe_float(balance, 'inactive')
+            account['total'] = account['free'] + account['used']
             result[currencyCode] = account
-        return self.parse_balance(result)
+        balance = self.safe_balance(result)
+        return balance
 
     async def create_order(self, symbol, type, side, amount, price=None, params={}):
         await self.load_markets()
@@ -499,8 +503,8 @@ class egera(Exchange):
 
     async def fetch_deposit_address(self, code, params={}):
         await self.load_markets()
-        currencyId = self.currencyId(code)
-        currencyId = currencyId.upper()
+        currency = self.currency(code)
+        currencyId = currency['id'].upper()
         request = {
             'method': 'account',
             'action': 'info',
@@ -511,9 +515,11 @@ class egera(Exchange):
         address = self.safe_string(deposit, 'deposit')
         self.check_address(address)
         return {
-            'currency': code,
-            'address': address,
             'info': response,
+            'currency': currencyId,
+            'address': address,
+            'tag': None,
+            'network': null,
         }
 
     async def fetch_deposits(self, code=None, since=None, limit=None, params={}):

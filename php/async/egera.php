@@ -19,14 +19,14 @@ class egera extends Exchange {
             'countries' => array( 'PL' ),
             'rateLimit' => 2000,
             'certified' => false,
-            'pro' => false,
+            'pro' => true,
             'urls' => array(
                 'api' => array(
                     'public' => 'https://api.egera.com/',
                     'private' => 'https://api.egera.com/',
                 ),
-                'www' => 'https://egera.com',
-                'doc' => 'https://docs.egera.com',
+                'www' => 'https://bitclude.com',
+                'doc' => 'https://docs.bitclude.com',
             ),
             'requiredCredentials' => array(
                 'apiKey' => true,
@@ -54,12 +54,14 @@ class egera extends Exchange {
                 'fetchOrder' => false,
                 'fetchOrderBook' => true,
                 'fetchOrders' => false,
-                'fetchTicker' => 'emulated',
+                'fetchTicker' => true,
                 'fetchTickers' => true,
                 'fetchTrades' => true,
                 'fetchTradingFees' => false,
                 'fetchWithdrawals' => false,
+                'watchBalance' => true,
                 'withdraw' => false,
+                'ws' => true,
             ),
             'api' => array(
                 'public' => array(
@@ -185,20 +187,17 @@ class egera extends Exchange {
     public function fetch_tickers($symbols = null, $params = array ()) {
         return Async\async(function () use ($symbols, $params) {
             Async\await($this->load_markets());
-            $symbols = ($symbols === null) ? $this->symbols : $symbols;
             $tickers = Async\await($this->publicGetStatsTickerJson ($params));
-            $marketIds = is_array($this->marketsById) ? array_keys($this->marketsById) : array();
-            $result = array();
-            for ($i = 0; $i < count($marketIds); $i++) {
-                $marketId = $marketIds[$i];
-                $market = $this->marketsById[$marketId];
-                $symbol = $market['symbol'];
-                $ticker = $this->safe_value($tickers, $marketId);
-                if ($this->in_array($symbol, $symbols)) {
-                    $result[$symbol] = $this->parse_ticker($ticker, $market);
-                }
-            }
-            return $result;
+            $result = $symbols->map ((symbol) => array(
+                $market = $this->market(symbol);
+                $marketId = $this->safe_value($market, 'id');
+                $ticker = $tickers[$marketId];
+                return $this->parse_ticker($ticker, $market);
+            ));
+            return $result->reduce ((prev, cur) => array(
+                prev[cur.symbol] = cur;
+                return prev;
+            ), array());
         }) ();
     }
 
@@ -213,6 +212,7 @@ class egera extends Exchange {
         $timestamp = $this->milliseconds();
         $symbol = $market['symbol'];
         return array(
+            // 'subject' => $this->safe_string($ticker, 'action'),
             'symbol' => $symbol,
             'timestamp' => $timestamp,
             'datetime' => $this->iso8601($timestamp),
@@ -227,10 +227,10 @@ class egera extends Exchange {
             'close' => $this->safe_float($ticker, 'last'),
             'last' => $this->safe_float($ticker, 'last'),
             'previousClose' => null,
-            'change' => null,
+            'change' => $this->safe_float($ticker, 'change'),
             'percentage' => null,
             'average' => null,
-            'baseVolume' => null,
+            'baseVolume' => $this->safe_float($ticker, 'volume'),
             'quoteVolume' => null,
             'info' => $ticker,
         );
@@ -382,9 +382,11 @@ class egera extends Exchange {
                 $account = $this->account();
                 $account['free'] = $this->safe_float($balance, 'active');
                 $account['used'] = $this->safe_float($balance, 'inactive');
+                $account['total'] = $account['free'] . $account['used'];
                 $result[$currencyCode] = $account;
             }
-            return $this->parse_balance($result);
+            $balance = $this->safe_balance($result);
+            return $balance;
         }) ();
     }
 
@@ -556,8 +558,8 @@ class egera extends Exchange {
     public function fetch_deposit_address($code, $params = array ()) {
         return Async\async(function () use ($code, $params) {
             Async\await($this->load_markets());
-            $currencyId = $this->currencyId ($code);
-            $currencyId = strtoupper($currencyId);
+            $currency = $this->currency($code);
+            $currencyId = strtoupper($currency['id']);
             $request = array(
                 'method' => 'account',
                 'action' => 'info',
@@ -568,9 +570,11 @@ class egera extends Exchange {
             $address = $this->safe_string($deposit, 'deposit');
             $this->check_address($address);
             return array(
-                'currency' => $code,
-                'address' => $address,
                 'info' => $response,
+                'currency' => $currencyId,
+                'address' => $address,
+                'tag' => null,
+                'network' => null,
             );
         }) ();
     }

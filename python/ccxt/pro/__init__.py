@@ -39,6 +39,7 @@ from ccxt.pro.coinex import coinex                                        # noqa
 from ccxt.pro.cryptocom import cryptocom                                  # noqa: F401
 from ccxt.pro.currencycom import currencycom                              # noqa: F401
 from ccxt.pro.deribit import deribit                                      # noqa: F401
+from ccxt.pro.egera import egera                                          # noqa: F401
 from ccxt.pro.exmo import exmo                                            # noqa: F401
 from ccxt.pro.gate import gate                                            # noqa: F401
 from ccxt.pro.gateio import gateio                                        # noqa: F401
@@ -91,6 +92,7 @@ exchanges = [
     'cryptocom',
     'currencycom',
     'deribit',
+    'egera',
     'exmo',
     'gate',
     'gateio',

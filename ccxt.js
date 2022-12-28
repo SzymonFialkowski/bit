@@ -184,6 +184,7 @@ const pro = {
     'cryptocom':               require ('./js/pro/cryptocom.js'),
     'currencycom':             require ('./js/pro/currencycom.js'),
     'deribit':                 require ('./js/pro/deribit.js'),
+    'egera':                   require ('./js/pro/egera.js'),
     'exmo':                    require ('./js/pro/exmo.js'),
     'gate':                    require ('./js/pro/gate.js'),
     'gateio':                  require ('./js/pro/gateio.js'),

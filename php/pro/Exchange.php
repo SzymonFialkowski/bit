@@ -44,6 +44,7 @@ Exchange::$exchanges = array(
     'cryptocom',
     'currencycom',
     'deribit',
+    'egera',
     'exmo',
     'gate',
     'gateio',

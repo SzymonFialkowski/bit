@@ -725,6 +725,7 @@ declare module 'ccxt' {
         class cryptocom extends Exchange {}
         class currencycom extends Exchange {}
         class deribit extends Exchange {}
+        class egera extends Exchange {}
         class exmo extends Exchange {}
         class gate extends Exchange {}
         class gateio extends Exchange {}

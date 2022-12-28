@@ -118,16 +118,20 @@ module.exports = class Exchange extends BaseExchange {
         // catch any connection-level exceptions from the client
         // (connection established successfully)
         connected.then (() => {
+            // console.log ('connected', client.subscriptions)
             if (!client.subscriptions[subscribeHash]) {
                 client.subscriptions[subscribeHash] = subscription || true;
                 const options = this.safeValue (this.options, 'ws');
                 const cost = this.safeValue (options, 'cost', 1);
+                // console.log(subscription, cost,)
                 if (message) {
+                    // console.log(this.enableRateLimit, client.throttle)
                     if (this.enableRateLimit && client.throttle) {
                         // add cost here |
                         //               |
                         //               V
                         client.throttle (cost).then (() => {
+                            // console.log('tttt', message)
                             client.send (message);
                         }).catch ((e) => { throw e });
                     } else {
