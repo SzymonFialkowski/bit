@@ -149,12 +149,14 @@ module.exports = class Exchange extends BaseExchange {
     }
 
     onError (client, error) {
+        throw { message: `WS error on exchange`, data: error };
         if ((client.url in this.clients) && (this.clients[client.url].error)) {
             delete this.clients[client.url];
         }
     }
 
     onClose (client, error) {
+        throw { message: `WS closed on exchange`, data: error };
         if (client.error) {
             // connection closed due to an error, do nothing
         } else {

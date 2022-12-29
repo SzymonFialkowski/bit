@@ -35,51 +35,12 @@ module.exports = class egera extends egeraRest {
         });
     }
 
-    async initWS () {
-        const url = this.urls['api']['ws'];
-        const message = {
-            'op': 'unsubscribe',
-            'headers': { 'id': this.uid, 'token': this.secret },
-            'args': [ 'trades:all', 'tickers:all', 'orderbooks:all', 'connected:all', 'balances:all', 'orders:all', 'wallets:all' ],
-            //      trades: [ 'all', 'BTC_PLN', 'LTC_PLN', 'BTC_USD' ],
-            //     tickers: [ 'BTC_PLN', 'LTC_PLN', 'all', 'BTC_USD' ],
-            //     orderbooks: [ 'all', 'BTC_PLN', 'LTC_PLN', 'BTC_USD' ],
-            //     connected: [ 'all' ],
-            //     balances: [ 'all', 'BTC' ],
-            //     orders: [ 'all' ],
-            //     wallets: [ 'all' ],
-            //     executions
-        };
-        const messageHash = 'disableAll';
-        await this.watch (url, messageHash, message, messageHash);
-    }
-
     requestId (url) {
         const options = this.safeValue (this.options, 'requestId', {});
         const previousValue = this.safeInteger (options, url, 0);
         const newValue = this.sum (previousValue, 1);
         this.options['requestId'][url] = newValue;
         return newValue;
-    }
-
-    async unsubscribe (topic, messageHash, method, symbol, params = {}) {
-        const nonce = this.requestId ();
-        const url = this.urls['api']['ws'];
-        const subscribe = {
-            'op': 'unsubscribe',
-            'headers': { 'id': this.uid, 'token': this.secret },
-            'args': [ 'trades:all', 'tickers:all', 'orderbooks:all' ],
-        };
-        const subscription = {
-            'id': nonce.toString (),
-            'symbol': symbol,
-            'topic': topic,
-            'messageHash': messageHash,
-            'method': method,
-        };
-        const request = this.extend (subscribe, params);
-        const subscriptionHash = messageHash;
-        return await this.watch (url, messageHash, request, subscriptionHash, subscription);
     }
 
     async watchBalance () {
@@ -90,10 +51,6 @@ module.exports = class egera extends egeraRest {
 
     async watchTicker (symbol) {
         await this.loadMarkets ();
-        // const topic = {
-        //     action: 'tickers',
-        //     symbol,
-        // };
         const egeraSymbol = this.market (symbol)['id'].toUpperCase ();
         const topic = `tickers:${egeraSymbol}`;
         return await this.subscribe (topic, undefined, {});
