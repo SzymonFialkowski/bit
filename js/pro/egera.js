@@ -27,10 +27,6 @@ module.exports = class egera extends egeraRest {
                 'secret': true,
             },
             'streaming': {
-                // kucoin does not support built-in ws protocol-level ping-pong
-                // instead it requires a custom json-based text ping-pong
-                // https://docs.kucoin.com/#ping
-                'ping': this.ping,
             },
         });
     }
@@ -108,20 +104,6 @@ module.exports = class egera extends egeraRest {
         if (method !== undefined) {
             method.call (this, client, message, subscription);
         }
-        return message;
-    }
-
-    ping (client) {
-        const id = this.requestId ().toString ();
-        return {
-            'id': id,
-            'type': 'ping',
-        };
-    }
-
-    handlePong (client, message) {
-        // https://docs.kucoin.com/#ping
-        client.lastPong = this.milliseconds ();
         return message;
     }
 

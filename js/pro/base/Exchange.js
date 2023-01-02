@@ -149,14 +149,14 @@ module.exports = class Exchange extends BaseExchange {
     }
 
     onError (client, error) {
-        throw { message: `WS error on exchange`, data: error };
+        console.log({ message: `WS error on exchange`, data: null });
         if ((client.url in this.clients) && (this.clients[client.url].error)) {
             delete this.clients[client.url];
         }
     }
 
     onClose (client, error) {
-        throw { message: `WS closed on exchange`, data: error };
+        console.log({ message: `WS closed on exchange`, data: null });
         if (client.error) {
             // connection closed due to an error, do nothing
         } else {
@@ -167,7 +167,7 @@ module.exports = class Exchange extends BaseExchange {
         }
     }
 
-    async close () {
+    async close() {
         const clients = Object.values (this.clients || {});
         for (let i = 0; i < clients.length; i++) {
             const client = clients[i];
