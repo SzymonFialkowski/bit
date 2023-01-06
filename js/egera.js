@@ -19,8 +19,8 @@ module.exports = class egera extends Exchange {
             'pro': true,
             'urls': {
                 'api': {
-                    'public': 'https://api.egera.com/',
-                    'private': 'https://api.egera.com/',
+                    'public': 'https://api.egera.com',
+                    'private': 'https://api.egera.com',
                 },
                 'www': 'https://bitclude.com',
                 'doc': 'https://docs.bitclude.com',
